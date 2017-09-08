@@ -7,9 +7,8 @@
 
 require_once __DIR__ . '/Core.php';
 
-require_once __DIR__. '/a.php';
 $api = new Core();
-$result = $api->decodeArrayOfCodes('28-200');
-echo $result;
+$result = $api->decodeArrayOfCodes(['28-200', '41-203', '30-001', '71-001']);
+var_dump($result);
 echo '<br>';
 echo $api->getExecTime();

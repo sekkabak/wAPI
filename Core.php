@@ -6,18 +6,22 @@
 
 class Core {
 
-	/* @var array last function execution time */
+	/* @var array ostatni czas wykonania */
 	private $execTime;
 
+	/**
+	 * Dekoduje pojedyńczy kod
+	 *
+	 * @param $code
+	 *
+	 * @return string
+	 */
 	public function decodeOneCode( $code ) {
-		// start count time
 		$start = microtime( true );
 
-		$code = explode( '-', $code );
-
-		$findsector = (array) $this->getSortingNumber($code[0]);
+		$code       = explode( '-', $code );
+		$findsector = (array) $this->getSortingNumber( $code[0] );
 		$finded     = '';
-
 		foreach ( $findsector as $key ) {
 			$tofind = (string) $code[1];
 			$cont   = file_get_contents( __DIR__ . '/s/' . $key . '/' . $code[0] );
@@ -27,40 +31,54 @@ class Core {
 			}
 		}
 
-		// end count time and set
 		$this->execTime = microtime( true ) - $start;
 
-		// return translated value
 		return $this->translate( $finded );
 	}
 
-	public function decodeArrayOfCodes($code) {
+	/**
+	 * Dekoduje array z
+	 *
+	 * @param $codes array
+	 *
+	 * @return array
+	 */
+	public function decodeArrayOfCodes( $codes ) {
+		$start  = microtime( true );
+		$finded = [];
 
+		foreach ( $codes as $ck => $cv ) {
+			$cv         = explode( '-', $cv );
+			$findsector = (array) $this->getSortingNumber( $cv[0] );
+			$f          = '';
+
+			foreach ( $findsector as $key ) {
+				$tofind = (string) $cv[1];
+				$cont   = file_get_contents( __DIR__ . '/s/' . $key . '/' . $cv[0] );
+				if ( strpos( $cont, $tofind ) !== false ) {
+					$f = $key;
+					break;
+				}
+			}
+
+			$finded[] = $this->translate( $f );
+		}
+
+
+		$this->execTime = microtime( true ) - $start;
+
+		return $finded;
 	}
 
+	/**
+	 * TODO
+	 */
 	public function decodeJsonOfCodes() {
 
 	}
 
 	/**
-	 * Eksperymentalna metoda tworząca biblioteke
-	 */
-	/*
-	public function cutToLibrary() {
-		foreach ( self::$states as $key => $value ) {
-			$path = __DIR__ . '/s/' . $key;
-			mkdir( $path, 0777, true );
-			foreach ( $value as $k => $v ) {
-				$myfile = fopen( $path . '/' . $k, "wr" ) or die( 'Unable to open file!' );
-				fwrite( $myfile, $v );
-				fclose( $myfile );
-			}
-		}
-	}
-	*/
-
-	/**
-	 * Metoda tłumacząca
+	 * Tłumaczy klucze na nazwy
 	 *
 	 * @param $key
 	 *
@@ -91,7 +109,7 @@ class Core {
 	}
 
 	/**
-	 * Metoda dostarczająca numercje
+	 * Dostarczająca numercje
 	 *
 	 * @param $key
 	 *
@@ -100,110 +118,115 @@ class Core {
 	private function getSortingNumber( $key ) {
 		static $sortArray = [
 			'00' => [ 0 ],
-			'01' => [ 0 ],
-			'02' => [ 0 ],
-			'03' => [ 0 ],
-			'04' => [ 0 ],
-			'05' => [ 0 ],
-			'06' => [ 0 ],
-			'07' => [ 0 ],
-			'08' => [ 0, 3 ],
-			'09' => [ 0 ],
 			'10' => [ 1 ],
-			'11' => [ 1 ],
-			'12' => [ 1 ],
-			'13' => [ 1 ],
-			'14' => [ 1 ],
-			'15' => [ 2 ],
-			'16' => [ 2 ],
-			'17' => [ 2 ],
-			'18' => [ 2, 0 ],
-			'19' => [ 2, 1 ],
 			'20' => [ 3 ],
-			'21' => [ 3 ],
-			'22' => [ 3 ],
-			'23' => [ 3 ],
-			'24' => [ 3 ],
-			'25' => [ 4 ],
-			'26' => [ 0, 4, 15 ],
-			'27' => [ 0, 4 ],
-			'28' => [ 4 ],
-			'29' => [ 4, 6 ],
 			'30' => [ 5 ],
-			'31' => [ 5 ],
-			'32' => [ 5 ],
-			'33' => [ 5 ],
-			'34' => [ 5, 7, 10 ],
-			'35' => [ 6 ],
-			'36' => [ 6 ],
-			'37' => [ 6 ],
-			'38' => [ 5, 6 ],
-			'39' => [ 6 ],
 			'40' => [ 7 ],
+			'01' => [ 0 ],
+			'11' => [ 1 ],
+			'21' => [ 3 ],
+			'31' => [ 5 ],
 			'41' => [ 7 ],
+			'02' => [ 0 ],
+			'12' => [ 1 ],
+			'22' => [ 3 ],
+			'32' => [ 5 ],
 			'42' => [ 7 ],
+			'03' => [ 0 ],
+			'13' => [ 1 ],
+			'23' => [ 3 ],
+			'33' => [ 5 ],
 			'43' => [ 7 ],
+			'04' => [ 0 ],
+			'14' => [ 1 ],
+			'24' => [ 3 ],
+			'34' => [ 5, 7, 10 ],
 			'44' => [ 7 ],
+			'05' => [ 0 ],
+			'15' => [ 2 ],
+			'25' => [ 4 ],
+			'35' => [ 6 ],
 			'45' => [ 7 ],
+			'06' => [ 0 ],
+			'16' => [ 2 ],
+			'26' => [ 0, 4, 15 ],
+			'36' => [ 6 ],
 			'46' => [ 7 ],
+			'07' => [ 0 ],
+			'17' => [ 2 ],
+			'27' => [ 0, 4 ],
+			'37' => [ 6 ],
 			'47' => [ 7, 8 ],
+			'08' => [ 0, 3 ],
+			'18' => [ 2, 0 ],
+			'28' => [ 4 ],
+			'38' => [ 5, 6 ],
 			'48' => [ 8 ],
+			'09' => [ 0 ],
+			'19' => [ 2, 1 ],
+			'29' => [ 4, 6 ],
+			'39' => [ 6 ],
 			'49' => [ 8 ],
 			'50' => [ 9 ],
-			'51' => [ 9 ],
-			'52' => [ 9 ],
-			'53' => [ 9 ],
-			'54' => [ 9 ],
-			'55' => [ 9 ],
-			'56' => [ 9 ],
-			'57' => [ 9 ],
-			'58' => [ 9 ],
-			'59' => [ 9 ],
 			'60' => [ 10 ],
-			'61' => [ 10 ],
-			'62' => [ 10 ],
-			'63' => [ 10 ],
-			'64' => [ 10 ],
-			'65' => [ 11 ],
-			'66' => [ 11 ],
-			'67' => [ 9, 11 ],
-			'68' => [ 11 ],
-			'69' => [ 11 ],
 			'70' => [ 12 ],
-			'71' => [ 12 ],
-			'72' => [ 12 ],
-			'73' => [ 12 ],
-			'74' => [ 12 ],
-			'75' => [ 12 ],
-			'76' => [ 12, 13 ],
-			'77' => [ 10, 13 ],
-			'78' => [ 12 ],
-			'79' => [],
 			'80' => [ 13 ],
-			'81' => [ 13 ],
-			'82' => [ 1, 13 ],
-			'83' => [ 13, 14 ],
-			'84' => [ 13 ],
-			'85' => [ 14 ],
-			'86' => [ 14 ],
-			'87' => [ 14 ],
-			'88' => [ 14 ],
-			'89' => [ 10, 13, 14 ],
 			'90' => [ 15 ],
+			'51' => [ 9 ],
+			'61' => [ 10 ],
+			'71' => [ 12 ],
+			'81' => [ 13 ],
 			'91' => [ 15 ],
+			'52' => [ 9 ],
+			'62' => [ 10 ],
+			'72' => [ 12 ],
+			'82' => [ 1, 13 ],
 			'92' => [ 15 ],
+			'53' => [ 9 ],
+			'63' => [ 10 ],
+			'73' => [ 12 ],
+			'83' => [ 13, 14 ],
 			'93' => [ 15 ],
+			'54' => [ 9 ],
+			'64' => [ 10 ],
+			'74' => [ 12 ],
+			'84' => [ 13 ],
 			'94' => [ 15 ],
+			'55' => [ 9 ],
+			'65' => [ 11 ],
+			'75' => [ 12 ],
+			'85' => [ 14 ],
 			'95' => [ 15 ],
+			'56' => [ 9 ],
+			'66' => [ 11 ],
+			'76' => [ 12, 13 ],
+			'86' => [ 14 ],
 			'96' => [ 0, 15 ],
+			'57' => [ 9 ],
+			'67' => [ 9, 11 ],
+			'77' => [ 10, 13 ],
+			'87' => [ 14 ],
 			'97' => [ 15 ],
+			'58' => [ 9 ],
+			'68' => [ 11 ],
+			'78' => [ 12 ],
+			'88' => [ 14 ],
 			'98' => [ 15 ],
+			'59' => [ 9 ],
+			'69' => [ 11 ],
+			'79' => [],
+			'89' => [ 10, 13, 14 ],
 			'99' => [ 15 ],
 		];
 
 		return $sortArray[ $key ];
 	}
 
+	/**
+	 * Zwraca ostatni czas wykonania funkcji
+	 *
+	 * @return array
+	 */
 	public function getExecTime() {
 		return $this->execTime;
 	}
