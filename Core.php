@@ -1,7 +1,7 @@
 <?php
+
 /**
  * Created by: Cezary Bąk
- * License: OEM
  */
 
 class Core {
