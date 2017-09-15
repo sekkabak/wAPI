@@ -9,6 +9,9 @@ class Core {
 	/* @var array ostatni czas wykonania */
 	private $execTime;
 
+	/* @var bool czy zwracać z tłumaczeniem */
+	public $translate = true;
+
 	/**
 	 * Dekoduje pojedyńczy kod
 	 *
@@ -21,7 +24,12 @@ class Core {
 
 		$code       = explode( '-', $code );
 		$findsector = (array) $this->getSortingNumber( $code[0] );
-		$finded     = '';
+
+		if ( ! isset( $code[1] ) || $findsector[0] === '' || empty( $code[1] ) ) {
+			return $this->translate( '' );
+		}
+
+		$finded = '';
 		foreach ( $findsector as $key ) {
 			$tofind = (string) $code[1];
 			$cont   = file_get_contents( __DIR__ . '/s/' . $key . '/' . $code[0] );
@@ -33,7 +41,14 @@ class Core {
 
 		$this->execTime = microtime( true ) - $start;
 
-		return $this->translate( $finded );
+		if($this->translate)
+		{
+			return $this->translate( $finded );
+		}
+		else
+		{
+			return $finded;
+		}
 	}
 
 	/**
@@ -50,8 +65,9 @@ class Core {
 		foreach ( $codes as $ck => $cv ) {
 			$cv         = explode( '-', $cv );
 			$findsector = (array) $this->getSortingNumber( $cv[0] );
-			$f          = '';
 
+			// TODO zrobić obsługe wielu nieznalezionych
+			$f = '';
 			foreach ( $findsector as $key ) {
 				$tofind = (string) $cv[1];
 				$cont   = file_get_contents( __DIR__ . '/s/' . $key . '/' . $cv[0] );
@@ -61,7 +77,14 @@ class Core {
 				}
 			}
 
-			$finded[] = $this->translate( $f );
+			if($this->translate)
+			{
+				$finded[] = $this->translate( $f );
+			}
+			else
+			{
+				$finded[] = $f;
+			}
 		}
 
 
@@ -116,6 +139,15 @@ class Core {
 	 * @return mixed
 	 */
 	private function getSortingNumber( $key ) {
+
+		if ( ! is_numeric( $key ) || (int) $key > 99 || (int) $key < 00 ) {
+			return '';
+		}
+
+		if ( strlen( $key ) === 1 ) {
+			$key = '0' . $key;
+		}
+
 		static $sortArray = [
 			'00' => [ 0 ],
 			'10' => [ 1 ],
